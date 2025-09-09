@@ -27,6 +27,7 @@
     .fade-enter { opacity:0; transform: translateY(8px); }
     .fade-enter-active { opacity:1; transform: translateY(0); transition: opacity .25s ease, transform .25s ease; }
     .hidden { display:none; }
+    .btn-success { background: #16a34a; color:#fff; }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-elegant text-slate-900">
@@ -149,10 +150,11 @@
               Queda algún regalo pendiente, ¿cuándo quieres abrirlo?
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button id="opt-hoy" class="rounded-2xl px-6 py-3 btn-primary font-semibold">Hoy y ahora ya que es tu cumple</button>
+              <button id="opt-hoy" class="rounded-2xl px-6 py-3 btn-outline font-semibold">Hoy y ahora ya que es tu cumple</button>
               <button id="opt-domingo" class="rounded-2xl px-6 py-3 btn-outline font-semibold">El domingo a mi vuelta!</button>
               <button id="opt-cenita" class="rounded-2xl px-6 py-3 btn-outline font-semibold">En la cenita de celebración de los dos</button>
             </div>
+            <div id="giftConfirm" class="text-sm text-green-700" aria-live="polite"></div>
             <div id="chosenSummary" class="text-sm text-slate-600"></div>
             <div class="flex items-center justify-center gap-3 pt-2">
               <button id="restartBtn" class="rounded-2xl px-6 py-3 btn-outline font-semibold">Volver a empezar</button>
@@ -194,11 +196,26 @@
       // Selección de hobbies (con Bautizo de Esgrima)
       function selectedPicks(){const ids=['esgrima','caballo','pintura'];const labels={esgrima:'Bautizo de Esgrima',caballo:'10 sesiones clase de caballo',pintura:'Bono 10 sesiones clase de pintura'};return ids.filter(id=>{const el=document.querySelector('#opt-'+id+' input');return el&&el.checked;}).map(id=>labels[id]);}
       document.getElementById('confirmBtn').onclick=()=>{const picks=selectedPicks();const summary=document.getElementById('chosenSummary');if(summary){summary.textContent=picks.length?('Has elegido: '+picks.join(', ')):'No has marcado hobbies (podemos decidirlo más tarde).';}setStep(3);};
-      document.getElementById('aventuraBtn').onclick=e=>{e.preventDefault();alert('¡Perfecto! Planifico una escapada con ruta a caballo por el sur. 🐎');};document.getElementById('nyBtn').onclick=e=>{e.preventDefault();alert('¡Genial! Me pongo con los vuelos a Nueva York y el planazo. 🗽✈️');};
-      // Botones de opciones de cuándo abrir el regalo
+
+      // Botones de opciones de cuándo abrir el regalo con confirmación persistente
       const hoy=document.getElementById('opt-hoy');const domingo=document.getElementById('opt-domingo');const cenita=document.getElementById('opt-cenita');
-      function markChoice(btn){[hoy,domingo,cenita].forEach(b=>{b.classList.remove('btn-primary');b.classList.add('btn-outline');});btn.classList.remove('btn-outline');btn.classList.add('btn-primary');}
-      hoy.onclick=()=>markChoice(hoy);domingo.onclick=()=>markChoice(domingo);cenita.onclick=()=>markChoice(cenita);
+      const giftConfirm=document.getElementById('giftConfirm');
+      const CHOICES={hoy:'Hoy y ahora ya que es tu cumple',domingo:'El domingo a mi vuelta!',cenita:'En la cenita de celebración de los dos'};
+      function markChoiceKey(key){
+        [hoy,domingo,cenita].forEach(b=>{b.classList.remove('btn-primary','btn-success');b.classList.add('btn-outline');});
+        const btn = key==='hoy'?hoy:key==='domingo'?domingo:cenita;
+        btn.classList.remove('btn-outline'); btn.classList.add('btn-success');
+        localStorage.setItem('giftChoice', key);
+        giftConfirm.textContent = '✔️ ¡Hecho! Reservado: ' + CHOICES[key];
+      }
+      hoy.onclick=()=>markChoiceKey('hoy');domingo.onclick=()=>markChoiceKey('domingo');cenita.onclick=()=>markChoiceKey('cenita');
+
+      // Restaurar elección previa si existe
+      const saved = localStorage.getItem('giftChoice');
+      if (saved && (saved in CHOICES)) {
+        markChoiceKey(saved);
+      }
+
       setStep(0);
     })();
   </script>
