@@ -22,12 +22,13 @@
     .card:hover { transform: translateY(-2px); box-shadow: 0 16px 28px rgba(2,6,23,.12); }
     .btn-primary { background:#2563eb; color:#fff; transition: transform .15s ease; }
     .btn-primary:hover { background:#1d4ed8; transform: translateY(-1px); }
-    .btn-outline { border:1px solid #a7f3d0; }
+    .btn-outline { border:1px solid #a7f3d0; background:transparent; color:#0f172a; }
+    .btn-success { background:#16a34a; color:#fff; border-color:#16a34a; }
+    .btn-selected { background:#16a34a !important; color:#fff !important; border-color:#16a34a !important; }
     .dot { width:.5rem; height:.5rem; border-radius:9999px; }
     .fade-enter { opacity:0; transform: translateY(8px); }
     .fade-enter-active { opacity:1; transform: translateY(0); transition: opacity .25s ease, transform .25s ease; }
     .hidden { display:none; }
-    .btn-success { background: #16a34a; color:#fff; }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-elegant text-slate-900">
@@ -141,7 +142,7 @@
         </div>
       </section>
 
-      <!-- Pantalla 3: Mensaje final con nuevas opciones -->
+      <!-- Pantalla 3: Mensaje final con opciones -->
       <section id="screen-3" class="hidden fade-enter">
         <div class="card">
           <div class="space-y-5 text-center">
@@ -154,7 +155,7 @@
               <button id="opt-domingo" class="rounded-2xl px-6 py-3 btn-outline font-semibold">El domingo a mi vuelta!</button>
               <button id="opt-cenita" class="rounded-2xl px-6 py-3 btn-outline font-semibold">En la cenita de celebración de los dos</button>
             </div>
-            <div id="giftConfirm" class="text-sm text-green-700" aria-live="polite"></div>
+            <div id="giftConfirm" class="text-sm text-green-700 min-h-[1.25rem]" aria-live="polite"></div>
             <div id="chosenSummary" class="text-sm text-slate-600"></div>
             <div class="flex items-center justify-center gap-3 pt-2">
               <button id="restartBtn" class="rounded-2xl px-6 py-3 btn-outline font-semibold">Volver a empezar</button>
@@ -190,32 +191,21 @@
       function setStep(s){step=Math.max(0,Math.min(3,s));screens.forEach((el,i)=>{if(!el)return;const entering=i===step;if(entering){el.classList.remove('hidden');el.classList.remove('fade-enter-active');el.classList.add('fade-enter');requestAnimationFrame(()=>{el.classList.add('fade-enter-active');el.classList.remove('fade-enter');});}else{el.classList.add('hidden');}});dots.forEach((el,i)=>el.className='dot '+(i===step?'bg-blue-700':'bg-gray-300'));backBtn.classList.toggle('hidden',step===0);nextBtn.classList.toggle('hidden',step===3);}
       startBtn.onclick=()=>setStep(1);nextBtn.onclick=()=>setStep(step+1);backBtn.onclick=()=>setStep(step-1);toOptions.onclick=()=>setStep(2);
       document.getElementById('restartBtn').onclick=()=>setStep(0);document.getElementById('backToOptionsBtn').onclick=()=>setStep(2);
-      // Render solo embed YouTube (ID fijo)
+      // YouTube embed
       const playerContainer=document.getElementById('playerContainer');const ytid="QMnfNy-9XYI";
       playerContainer.innerHTML=`<iframe class="w-full aspect-video" src="https://www.youtube.com/embed/${ytid}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-      // Selección de hobbies (con Bautizo de Esgrima)
+      // Hobbies selection
       function selectedPicks(){const ids=['esgrima','caballo','pintura'];const labels={esgrima:'Bautizo de Esgrima',caballo:'10 sesiones clase de caballo',pintura:'Bono 10 sesiones clase de pintura'};return ids.filter(id=>{const el=document.querySelector('#opt-'+id+' input');return el&&el.checked;}).map(id=>labels[id]);}
       document.getElementById('confirmBtn').onclick=()=>{const picks=selectedPicks();const summary=document.getElementById('chosenSummary');if(summary){summary.textContent=picks.length?('Has elegido: '+picks.join(', ')):'No has marcado hobbies (podemos decidirlo más tarde).';}setStep(3);};
-
-      // Botones de opciones de cuándo abrir el regalo con confirmación persistente
+      // Gift choice with visible green state + persisted
       const hoy=document.getElementById('opt-hoy');const domingo=document.getElementById('opt-domingo');const cenita=document.getElementById('opt-cenita');
       const giftConfirm=document.getElementById('giftConfirm');
       const CHOICES={hoy:'Hoy y ahora ya que es tu cumple',domingo:'El domingo a mi vuelta!',cenita:'En la cenita de celebración de los dos'};
-      function markChoiceKey(key){
-        [hoy,domingo,cenita].forEach(b=>{b.classList.remove('btn-primary','btn-success');b.classList.add('btn-outline');});
-        const btn = key==='hoy'?hoy:key==='domingo'?domingo:cenita;
-        btn.classList.remove('btn-outline'); btn.classList.add('btn-success');
-        localStorage.setItem('giftChoice', key);
-        giftConfirm.textContent = '✔️ ¡Hecho! Reservado: ' + CHOICES[key];
-      }
-      hoy.onclick=()=>markChoiceKey('hoy');domingo.onclick=()=>markChoiceKey('domingo');cenita.onclick=()=>markChoiceKey('cenita');
-
-      // Restaurar elección previa si existe
-      const saved = localStorage.getItem('giftChoice');
-      if (saved && (saved in CHOICES)) {
-        markChoiceKey(saved);
-      }
-
+      function clearChoices(){[hoy,domingo,cenita].forEach(b=>{b.classList.remove('btn-selected','btn-success');b.classList.add('btn-outline');});}
+      function applyChoice(btn,key){clearChoices();btn.classList.remove('btn-outline');btn.classList.add('btn-selected');giftConfirm.textContent='✔️ ¡Hecho! Reservado: '+CHOICES[key];localStorage.setItem('giftChoice',key);}
+      hoy.onclick=()=>applyChoice(hoy,'hoy');domingo.onclick=()=>applyChoice(domingo,'domingo');cenita.onclick=()=>applyChoice(cenita,'cenita');
+      // Restore saved
+      const saved=localStorage.getItem('giftChoice');if(saved&&CHOICES[saved]){applyChoice(saved==='hoy'?hoy:saved==='domingo'?domingo:cenita,saved);}
       setStep(0);
     })();
   </script>
