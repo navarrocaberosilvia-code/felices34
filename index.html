@@ -29,9 +29,13 @@
     .fade-enter { opacity:0; transform: translateY(8px); }
     .fade-enter-active { opacity:1; transform: translateY(0); transition: opacity .25s ease, transform .25s ease; }
     .hidden { display:none; }
+    /* Toast */
+    #toastContainer { position: fixed; top: 16px; right: 16px; display: grid; gap: 10px; z-index: 9999; }
+    .toast { background: #0ea5e9; color: white; padding: 10px 14px; border-radius: 12px; box-shadow: 0 10px 20px rgba(2,6,23,.2); }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-elegant text-slate-900">
+  <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
   <main class="min-h-screen flex items-center justify-center py-10 px-4">
     <div class="w-full max-w-4xl">
       <!-- Pantalla 0: Portada -->
@@ -82,7 +86,7 @@
                 <h3 class="text-xl md:text-2xl font-bold">¿Te apetece celebrar con un poco de aventura?</h3>
                 <p class="text-slate-700">Te propongo una escapada y ruta por el sur a caballo.</p>
                 <div class="flex flex-wrap gap-2">
-                  <a href="#" id="aventuraBtn" class="rounded-xl px-4 py-2 btn-primary text-sm font-semibold">Me encanta la idea</a>
+                  <button id="aventuraBtn" class="rounded-xl px-4 py-2 btn-primary text-sm font-semibold">Me encanta la idea</button>
                 </div>
               </div>
             </div>
@@ -97,7 +101,7 @@
                 <h3 class="text-xl md:text-2xl font-bold">¿Te apetece conocer la gran ciudad?</h3>
                 <p class="text-slate-700">Puedo mirar <em>vuelos a Nueva York</em> y organizarlo todo.</p>
                 <div class="flex flex-wrap gap-2">
-                  <a href="#" id="nyBtn" class="rounded-xl px-4 py-2 btn-primary text-sm font-semibold">¡Vamos a NY!</a>
+                  <button id="nyBtn" class="rounded-xl px-4 py-2 btn-primary text-sm font-semibold">¡Vamos a NY!</button>
                 </div>
               </div>
             </div>
@@ -187,6 +191,20 @@
 
   <script>
     (function(){
+      // Toast util
+      function showToast(msg, ms=2500){
+        const c = document.getElementById('toastContainer');
+        const el = document.createElement('div');
+        el.className = 'toast';
+        el.textContent = msg;
+        c.appendChild(el);
+        setTimeout(()=>{
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(-6px)';
+          setTimeout(()=> c.removeChild(el), 300);
+        }, ms);
+      }
+
       let step = 0;
       const screens=[document.getElementById('screen-0'),document.getElementById('screen-1'),document.getElementById('screen-2'),document.getElementById('screen-3')];
       const dots=[document.getElementById('dot0'),document.getElementById('dot1'),document.getElementById('dot2'),document.getElementById('dot3')];
@@ -201,11 +219,9 @@
       function selectedPicks(){const ids=['esgrima','caballo','pintura'];const labels={esgrima:'Bautizo de Esgrima',caballo:'10 sesiones clase de caballo',pintura:'Bono 10 sesiones clase de pintura'};return ids.filter(id=>{const el=document.querySelector('#opt-'+id+' input');return el&&el.checked;}).map(id=>labels[id]);}
       document.getElementById('confirmBtn').onclick=()=>{const picks=selectedPicks();const summary=document.getElementById('chosenSummary');if(summary){summary.textContent=picks.length?('Has elegido: '+picks.join(', ')):'No has marcado hobbies (podemos decidirlo más tarde).';}setStep(3);};
 
-      // Reinstated alert messages for Aventura & NY buttons
-      const aventuraBtn = document.getElementById('aventuraBtn');
-      const nyBtn = document.getElementById('nyBtn');
-      aventuraBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('¡Perfecto! Planifico una escapada con ruta a caballo por el sur. 🐎'); });
-      nyBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('¡Genial! Me pongo con los vuelos a Nueva York y el planazo. 🗽✈️'); });
+      // Aventura & NY → toasts
+      document.getElementById('aventuraBtn').onclick=()=>{ showToast('¡Perfecto! Planifico una escapada con ruta a caballo por el sur. 🐎'); };
+      document.getElementById('nyBtn').onclick=()=>{ showToast('¡Genial! Me pongo con los vuelos a Nueva York y el planazo. 🗽✈️'); };
 
       // -------- Última pantalla: elección + botón Confirmar + confeti --------
       const CHOICES={hoy:'Hoy y ahora ya que es tu cumple',domingo:'El domingo a mi vuelta!',cenita:'En la cenita de celebración de los dos'};
