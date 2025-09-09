@@ -7,21 +7,25 @@
   <meta name="description" content="Felices 34 — este año celebramos tu cumple cuando tú quieras, como tú quieras. Yo me encargo." />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Elegante en azules */
     .bg-gradient-elegant { 
-      background-image: linear-gradient(135deg, #eff6ff, #e2e8f0, #cbd5e1);
+      background-image: linear-gradient(135deg, #e0f2fe, #e0e7ff, #e2e8f0);
     }
     .card {
-      border-radius: 1rem; 
-      box-shadow: 0 10px 20px rgba(0,0,0,.06);
-      background: rgba(255,255,255,.85);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(255,255,255,.6);
+      border-radius: 1.25rem; 
+      box-shadow: 0 12px 24px rgba(2,6,23,.08);
+      background: rgba(255,255,255,.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.65);
       padding: 1.25rem;
+      transition: transform .2s ease, box-shadow .2s ease;
     }
-    .btn-primary { background:#1e40af; color:#fff; }
-    .btn-primary:hover { background:#1e3a8a; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 16px 28px rgba(2,6,23,.12); }
+    .btn-primary { background:#4338ca; color:#fff; transition: transform .15s ease; }
+    .btn-primary:hover { background:#3730a3; transform: translateY(-1px); }
+    .btn-outline { border:1px solid #c7d2fe; }
     .dot { width:.5rem; height:.5rem; border-radius:9999px; }
+    .fade-enter { opacity:0; transform: translateY(8px); }
+    .fade-enter-active { opacity:1; transform: translateY(0); transition: opacity .25s ease, transform .25s ease; }
     .hidden { display:none; }
   </style>
 </head>
@@ -29,10 +33,10 @@
   <main class="min-h-screen flex items-center justify-center py-10 px-4">
     <div class="w-full max-w-4xl">
       <!-- Pantalla 0: Portada -->
-      <section id="screen-0" class="text-center">
+      <section id="screen-0" class="text-center fade-enter fade-enter-active">
         <div class="mb-8">
           <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight">
-            Felices <span class="text-blue-800">34</span>
+            Felices <span class="text-indigo-700">34</span>
           </h1>
           <p class="mt-4 text-lg md:text-xl text-slate-700 max-w-2xl mx-auto">
             Este año celebramos tu cumple cuando tú quieras, como tú quieras… <strong>yo me encargo</strong>.
@@ -42,33 +46,26 @@
         <div class="card">
           <div class="flex flex-col items-center gap-4">
             <div class="flex items-center gap-2 text-slate-700">
-              <!-- icono vídeo -->
               <span aria-hidden="true">🎬</span>
               <span>Antes de nada, ¿tienes 4 minutos?</span>
             </div>
-            <button id="start-btn" class="inline-flex items-center gap-2 rounded-2xl px-6 py-3 btn-primary font-semibold shadow focus:outline-none focus:ring-4 focus:ring-blue-300" aria-label="Empezar">
+            <button id="start-btn" class="inline-flex items-center gap-2 rounded-2xl px-6 py-3 btn-primary font-semibold shadow focus:outline-none focus:ring-4 focus:ring-indigo-300" aria-label="Empezar">
               ▶️ Empezar
             </button>
           </div>
         </div>
       </section>
 
-      <!-- Pantalla 1: Vídeo -->
-      <section id="screen-1" class="hidden">
+      <!-- Pantalla 1: Vídeo (YouTube por defecto) -->
+      <section id="screen-1" class="hidden fade-enter">
         <div class="grid gap-6">
           <div class="card">
             <div class="grid md:grid-cols-2 gap-6 items-center">
               <div class="space-y-3">
                 <h2 class="text-2xl md:text-3xl font-bold">Vídeo</h2>
                 <p class="text-slate-700">
-                  Puedes subir el vídeo o pegar una URL (si es de Google Drive, pulsa <em>Play</em> dentro del reproductor).
+                  Puedes subir el vídeo o pegar una URL. Si es de <strong>YouTube</strong>, lo verás embebido aquí.
                 </p>
-
-                <!-- Toggle sandbox -->
-                <div class="flex items-center gap-3 text-sm text-slate-700">
-                  <input id="sandboxToggle" type="checkbox" />
-                  <label for="sandboxToggle">Modo seguro (desactiva peticiones de red en esta vista)</label>
-                </div>
 
                 <div class="flex flex-col gap-3">
                   <label class="block">
@@ -76,13 +73,13 @@
                     <input id="fileInput" type="file" accept="video/*" class="mt-1 block w-full text-sm" />
                   </label>
                   <div class="flex items-center gap-2">
-                    <input id="urlInput" type="url" placeholder="https://… (URL del vídeo)" class="flex-1 rounded-xl border px-3 py-2 text-sm" />
+                    <input id="urlInput" type="url" placeholder="Pega aquí la URL (YouTube, MP4, Drive…)" class="flex-1 rounded-xl border px-3 py-2 text-sm" />
                     <button id="playBtn" class="rounded-xl px-4 py-2 btn-primary text-sm font-semibold">Reproducir</button>
                   </div>
                 </div>
               </div>
 
-              <div class="rounded-xl overflow-hidden border bg-black/5">
+              <div class="rounded-2xl overflow-hidden border bg-black/5">
                 <div id="playerContainer" class="w-full">
                   <div class="aspect-video w-full grid place-items-center text-slate-500 text-sm p-6">
                     Sube un vídeo o pega una URL para previsualizar aquí.
@@ -97,7 +94,7 @@
               <p class="text-lg text-slate-800 text-center md:text-left">
                 Y ahora, ¿qué? ¿Cómo te apetece celebrarlo?
               </p>
-              <button id="to-options" class="inline-flex items-center gap-2 rounded-2xl px-6 py-3 btn-primary text-white font-semibold shadow focus:outline-none focus:ring-4 focus:ring-blue-300">
+              <button id="to-options" class="inline-flex items-center gap-2 rounded-2xl px-6 py-3 btn-primary text-white font-semibold shadow focus:outline-none focus:ring-4 focus:ring-indigo-300">
                 Siguiente ➡️
               </button>
             </div>
@@ -106,12 +103,11 @@
       </section>
 
       <!-- Pantalla 2: Opciones -->
-      <section id="screen-2" class="hidden">
+      <section id="screen-2" class="hidden fade-enter">
         <div class="grid gap-6">
-          <!-- Aventura -->
           <div class="card">
             <div class="flex items-start gap-4">
-              <div class="shrink-0 p-3 rounded-2xl bg-blue-50 border">
+              <div class="shrink-0 p-3 rounded-2xl bg-indigo-50 border">
                 <span class="text-2xl" aria-hidden="true">🗻</span>
               </div>
               <div class="space-y-2">
@@ -124,10 +120,9 @@
             </div>
           </div>
 
-          <!-- Gran ciudad -->
           <div class="card">
             <div class="flex items-start gap-4">
-              <div class="shrink-0 p-3 rounded-2xl bg-blue-50 border">
+              <div class="shrink-0 p-3 rounded-2xl bg-indigo-50 border">
                 <span class="text-2xl" aria-hidden="true">🏙️</span>
               </div>
               <div class="space-y-2">
@@ -140,10 +135,9 @@
             </div>
           </div>
 
-          <!-- Hobbies -->
           <div class="card">
             <div class="flex items-start gap-4">
-              <div class="shrink-0 p-3 rounded-2xl bg-blue-50 border">
+              <div class="shrink-0 p-3 rounded-2xl bg-indigo-50 border">
                 <span class="text-2xl" aria-hidden="true">🖌️</span>
               </div>
               <div class="space-y-3 w-full">
@@ -152,24 +146,24 @@
                 </h3>
                 <div class="grid sm:grid-cols-3 gap-3">
                   <label class="flex items-center gap-3 rounded-xl border p-3 cursor-pointer bg-white" id="opt-esgrima">
-                    <input type="checkbox" class="accent-blue-800" />
+                    <input type="checkbox" class="accent-indigo-700" />
                     <span class="flex items-center gap-2 text-slate-800">🗡️ Bono 10 sesiones de esgrima</span>
                   </label>
                   <label class="flex items-center gap-3 rounded-xl border p-3 cursor-pointer bg-white" id="opt-caballo">
-                    <input type="checkbox" class="accent-blue-800" />
+                    <input type="checkbox" class="accent-indigo-700" />
                     <span class="flex items-center gap-2 text-slate-800">🗻 10 sesiones clase de caballo</span>
                   </label>
                   <label class="flex items-center gap-3 rounded-xl border p-3 cursor-pointer bg-white" id="opt-pintura">
-                    <input type="checkbox" class="accent-blue-800" />
+                    <input type="checkbox" class="accent-indigo-700" />
                     <span class="flex items-center gap-2 text-slate-800">🖌️ Bono 10 sesiones clase de pintura</span>
                   </label>
                 </div>
 
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <p class="text-slate-700">
-                    <strong>Tú eliges</strong>, <span class="text-blue-800">¡yo me encargo!</span>
+                    <strong>Tú eliges</strong>, <span class="text-indigo-700">¡yo me encargo!</span>
                   </p>
-                  <button id="confirmBtn" class="inline-flex items-center gap-2 rounded-2xl px-6 py-3 btn-primary text-white font-semibold shadow focus:outline-none focus:ring-4 focus:ring-blue-300">
+                  <button id="confirmBtn" class="inline-flex items-center gap-2 rounded-2xl px-6 py-3 btn-primary text-white font-semibold shadow focus:outline-none focus:ring-4 focus:ring-indigo-300">
                     Confirmar elección
                   </button>
                 </div>
@@ -180,15 +174,36 @@
         </div>
       </section>
 
-      <!-- Barra inferior -->
+      <!-- Pantalla 3: Mensaje final -->
+      <section id="screen-3" class="hidden fade-enter">
+        <div class="card">
+          <div class="space-y-4 text-center">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-indigo-700">¡Bien!!! 🎉</h2>
+            <p class="text-lg md:text-xl text-slate-800">
+              Ahora que ya sabemos regalo queda... <br/>
+              <strong>¿dónde y cuándo cenamos para celebrar?</strong>
+            </p>
+            <p class="text-slate-800">
+              <em>Queda un regalo pendiente y habrá que darlo! Te quiero mucho!</em>
+            </p>
+            <div id="chosenSummary" class="text-sm text-slate-600"></div>
+            <div class="flex items-center justify-center gap-3 pt-2">
+              <button id="restartBtn" class="rounded-2xl px-6 py-3 btn-outline font-semibold">Volver a empezar</button>
+              <button id="backToOptionsBtn" class="rounded-2xl px-6 py-3 btn-primary font-semibold">Volver a opciones</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div class="mt-8 flex items-center justify-between text-sm text-slate-600">
         <div>
           <button id="backBtn" class="underline hover:no-underline hidden">Atrás</button>
         </div>
         <div class="flex items-center gap-2">
-          <div id="dot0" class="dot bg-blue-800"></div>
+          <div id="dot0" class="dot bg-indigo-700"></div>
           <div id="dot1" class="dot bg-gray-300"></div>
           <div id="dot2" class="dot bg-gray-300"></div>
+          <div id="dot3" class="dot bg-gray-300"></div>
         </div>
         <div>
           <button id="nextBtn" class="underline hover:no-underline">Siguiente</button>
@@ -200,139 +215,21 @@
   <script>
     (function(){
       let step = 0;
-      const screens = [
-        document.getElementById('screen-0'),
-        document.getElementById('screen-1'),
-        document.getElementById('screen-2'),
-      ];
-      const dots = [document.getElementById('dot0'), document.getElementById('dot1'), document.getElementById('dot2')];
-      const backBtn = document.getElementById('backBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const startBtn = document.getElementById('start-btn');
-      const toOptions = document.getElementById('to-options');
-
-      function setStep(s){
-        step = Math.max(0, Math.min(2, s));
-        screens.forEach((el,i)=> el.classList.toggle('hidden', i !== step));
-        dots.forEach((el,i)=> el.className = 'dot ' + (i===step ? 'bg-blue-800' : 'bg-gray-300'));
-        backBtn.classList.toggle('hidden', step===0);
-        nextBtn.classList.toggle('hidden', step===2);
-      }
-
-      startBtn.addEventListener('click', ()=> setStep(1));
-      nextBtn.addEventListener('click', ()=> setStep(step+1));
-      backBtn.addEventListener('click', ()=> setStep(step-1));
-      toOptions.addEventListener('click', ()=> setStep(2));
-
-      // Vídeo logic
-      const fileInput = document.getElementById('fileInput');
-      const urlInput = document.getElementById('urlInput');
-      const playBtn = document.getElementById('playBtn');
-      const playerContainer = document.getElementById('playerContainer');
-      const sandboxToggle = document.getElementById('sandboxToggle');
-
-      // Default sandbox: production false, localhost true
-      try {
-        const host = window.location.hostname || '';
-        sandboxToggle.checked = (host === 'localhost' || host === '127.0.0.1');
-      } catch(e) {
-        sandboxToggle.checked = true;
-      }
-
-      let videoSrc = '';
-
-      function normalizeUrl(url){
-        try {
-          const clean = url.trim();
-          const idPath = clean.match(/https?:\/\/drive\.google\.com\/file\/d\/([^/]+)/)?.[1];
-          const idParam = clean.match(/[?&]id=([^&]+)/)?.[1];
-          const id = idPath || idParam;
-          if (id) return `https://drive.google.com/uc?export=download&id=${id}`;
-          return clean;
-        } catch { return url; }
-      }
-      function drivePreviewSrc(url){
-        try {
-          const idParam = url.match(/[?&]id=([^&]+)/)?.[1];
-          const idPath = url.match(/file\/d\/([^/]+)/)?.[1];
-          const id = idParam || idPath;
-          return id ? `https://drive.google.com/file/d/${id}/preview` : url;
-        } catch { return url; }
-      }
-      function renderPlayer(){
-        const sandbox = sandboxToggle.checked;
-        const isBlob = videoSrc.startsWith('blob:');
-        const isHttp = /^https?:\/\//.test(videoSrc);
-        const isDrive = videoSrc.includes('drive.google.com');
-        if (!videoSrc) {
-          playerContainer.innerHTML = '<div class="aspect-video w-full grid place-items-center text-slate-500 text-sm p-6">Sube un vídeo o pega una URL para previsualizar aquí.</div>';
-          return;
-        }
-        if (sandbox && isHttp && !isBlob) {
-          // No embed in sandbox: offer actions
-          const openUrl = isDrive ? drivePreviewSrc(videoSrc) : videoSrc;
-          playerContainer.innerHTML = `
-            <div class="aspect-video w-full grid place-items-center p-6 text-center">
-              <p class="text-slate-700 mb-3">Vista previa desactivada por <strong>modo seguro</strong>.</p>
-              <div class="flex flex-wrap items-center justify-center gap-2">
-                <a href="${openUrl}" target="_blank" rel="noreferrer" class="rounded-xl px-4 py-2 btn-primary text-sm font-semibold">Abrir en pestaña nueva</a>
-                <button id="disableSandbox" class="rounded-xl px-4 py-2 border text-sm font-semibold hover:bg-white">Desactivar modo seguro aquí</button>
-              </div>
-            </div>`;
-          document.getElementById('disableSandbox').onclick = ()=> { sandboxToggle.checked = false; renderPlayer(); };
-          return;
-        }
-        // Embed
-        if (isDrive) {
-          const src = drivePreviewSrc(videoSrc);
-          playerContainer.innerHTML = `<iframe src="${src}" class="w-full aspect-video" allow="autoplay; encrypted-media"></iframe>`;
-        } else {
-          playerContainer.innerHTML = `<video id="theVideo" src="${videoSrc}" controls class="w-full h-full"></video>`;
-        }
-      }
-
-      fileInput.addEventListener('change', (e)=>{
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-        videoSrc = URL.createObjectURL(file);
-        renderPlayer();
-      });
-      urlInput.addEventListener('input', (e)=>{
-        videoSrc = normalizeUrl(e.target.value || '');
-        renderPlayer();
-      });
-      playBtn.addEventListener('click', ()=>{
-        if (!videoSrc || videoSrc.includes('drive.google.com')) return; // Google Drive needs play inside iframe
-        const v = document.getElementById('theVideo');
-        if (v && v.play) v.play();
-      });
-      sandboxToggle.addEventListener('change', renderPlayer);
-
-      // Opciones / hobbies
-      function picks(){
-        const ids = ['esgrima','caballo','pintura'];
-        const labels = {
-          esgrima: 'Bono 10 sesiones esgrima',
-          caballo: '10 sesiones clase de caballo',
-          pintura: 'Bono 10 sesiones clase de pintura'
-        };
-        return ids.filter((id, i)=>{
-          const el = document.querySelector('#opt-' + id + ' input');
-          return el && el.checked;
-        }).map(id => labels[id]);
-      }
-      document.getElementById('confirmBtn').addEventListener('click', ()=>{
-        const p = picks();
-        if (p.length) {
-          alert('Perfecto. Reservo: ' + p.join(', ') + '.');
-        } else {
-          alert('Elige una o varias opciones y lo organizo todo.');
-        }
-      });
-      document.getElementById('aventuraBtn').addEventListener('click', (e)=>{ e.preventDefault(); alert('¡Perfecto! Planifico una escapada con ruta a caballo por el sur. 🐎'); });
-      document.getElementById('nyBtn').addEventListener('click', (e)=>{ e.preventDefault(); alert('¡Genial! Me pongo con los vuelos a Nueva York y el planazo. 🗽✈️'); });
-
-      // Init
+      const screens = [document.getElementById('screen-0'),document.getElementById('screen-1'),document.getElementById('screen-2'),document.getElementById('screen-3')];
+      const dots = [document.getElementById('dot0'),document.getElementById('dot1'),document.getElementById('dot2'),document.getElementById('dot3')];
+      const backBtn=document.getElementById('backBtn');const nextBtn=document.getElementById('nextBtn');const startBtn=document.getElementById('start-btn');const toOptions=document.getElementById('to-options');let restartBtn,backToOptionsBtn;
+      function setStep(s){step=Math.max(0,Math.min(3,s));screens.forEach((el,i)=>{if(!el)return;const entering=i===step;if(entering){el.classList.remove('hidden');el.classList.remove('fade-enter-active');el.classList.add('fade-enter');requestAnimationFrame(()=>{el.classList.add('fade-enter-active');el.classList.remove('fade-enter');});}else{el.classList.add('hidden');}});dots.forEach((el,i)=>el.className='dot '+(i===step?'bg-indigo-700':'bg-gray-300'));backBtn.classList.toggle('hidden',step===0);nextBtn.classList.toggle('hidden',step===3);restartBtn=document.getElementById('restartBtn');backToOptionsBtn=document.getElementById('backToOptionsBtn');if(restartBtn)restartBtn.onclick=()=>setStep(0);if(backToOptionsBtn)backToOptionsBtn.onclick=()=>setStep(2);}startBtn.onclick=()=>setStep(1);nextBtn.onclick=()=>setStep(step+1);backBtn.onclick=()=>setStep(step-1);toOptions.onclick=()=>setStep(2);
+      const fileInput=document.getElementById('fileInput');const urlInput=document.getElementById('urlInput');const playBtn=document.getElementById('playBtn');const playerContainer=document.getElementById('playerContainer');
+      let videoSrc="https://youtu.be/QMnfNy-9XYI";
+      function ytId(url){try{const short=url.match(/youtu\.be\/([^?&]+)/)?.[1];const watch=url.match(/[?&]v=([^&]+)/)?.[1];const embed=url.match(/youtube\.com\/embed\/([^?&]+)/)?.[1];return short||watch||embed||null;}catch{return null;}}
+      function normalizeUrl(url){try{const clean=url.trim();const idPath=clean.match(/https?:\/\/drive\.google\.com\/file\/d\/([^/]+)/)?.[1];const idParam=clean.match(/[?&]id=([^&]+)/)?.[1];const id=idPath||idParam;if(id)return`https://drive.google.com/uc?export=download&id=${id}`;return clean;}catch{return url;}}
+      function drivePreviewSrc(url){try{const idParam=url.match(/[?&]id=([^&]+)/)?.[1];const idPath=url.match(/file\/d\/([^/]+)/)?.[1];const id=idParam||idPath;return id?`https://drive.google.com/file/d/${id}/preview`:url;}catch{return url;}}
+      function renderPlayer(){const ytid=ytId(videoSrc);const isDrive=videoSrc.includes('drive.google.com');if(ytid){playerContainer.innerHTML=`<iframe class="w-full aspect-video" src="https://www.youtube.com/embed/${ytid}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;}else if(isDrive){playerContainer.innerHTML=`<iframe src="${drivePreviewSrc(videoSrc)}" class="w-full aspect-video" allow="autoplay; encrypted-media"></iframe>`;}else{playerContainer.innerHTML=`<video id="theVideo" src="${videoSrc}" controls class="w-full h-full"></video>`;}}
+      renderPlayer();
+      fileInput.onchange=e=>{const file=e.target.files&&e.target.files[0];if(!file)return;videoSrc=URL.createObjectURL(file);renderPlayer();};urlInput.oninput=e=>{videoSrc=normalizeUrl(e.target.value||'');renderPlayer();};playBtn.onclick=()=>{const v=document.getElementById('theVideo');if(v&&v.play)v.play();};
+      function selectedPicks(){const ids=['esgrima','caballo','pintura'];const labels={esgrima:'Bono 10 sesiones esgrima',caballo:'10 sesiones clase de caballo',pintura:'Bono 10 sesiones clase de pintura'};return ids.filter(id=>{const el=document.querySelector('#opt-'+id+' input');return el&&el.checked;}).map(id=>labels[id]);}
+      document.getElementById('confirmBtn').onclick=()=>{const picks=selectedPicks();const summary=document.getElementById('chosenSummary');if(summary){summary.textContent=picks.length?('Has elegido: '+picks.join(', ')):'No has marcado hobbies (podemos decidirlo más tarde).';}setStep(3);};
+      document.getElementById('aventuraBtn').onclick=e=>{e.preventDefault();alert('¡Perfecto! Planifico una escapada con ruta a caballo por el sur. 🐎');};document.getElementById('nyBtn').onclick=e=>{e.preventDefault();alert('¡Genial! Me pongo con los vuelos a Nueva York y el planazo. 🗽✈️');};
       setStep(0);
     })();
   </script>
