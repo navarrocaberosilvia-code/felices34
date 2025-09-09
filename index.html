@@ -23,8 +23,8 @@
     .btn-primary { background:#2563eb; color:#fff; transition: transform .15s ease; }
     .btn-primary:hover { background:#1d4ed8; transform: translateY(-1px); }
     .btn-outline { border:1px solid #a7f3d0; background:transparent; color:#0f172a; }
-    .btn-success { background:#16a34a; color:#fff; border-color:#16a34a; }
-    .btn-selected { background:#16a34a !important; color:#fff !important; border-color:#16a34a !important; }
+    .btn-success, .btn-selected { background:#16a34a; color:#fff; border-color:#16a34a; }
+    .btn-disabled { opacity:.5; pointer-events:none; }
     .dot { width:.5rem; height:.5rem; border-radius:9999px; }
     .fade-enter { opacity:0; transform: translateY(8px); }
     .fade-enter-active { opacity:1; transform: translateY(0); transition: opacity .25s ease, transform .25s ease; }
@@ -142,7 +142,7 @@
         </div>
       </section>
 
-      <!-- Pantalla 3: Mensaje final con opciones -->
+      <!-- Pantalla 3: Mensaje final con opciones + Confirmar -->
       <section id="screen-3" class="hidden fade-enter">
         <div class="card">
           <div class="space-y-5 text-center">
@@ -151,15 +151,18 @@
               Queda algún regalo pendiente, ¿cuándo quieres abrirlo?
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button id="opt-hoy" class="rounded-2xl px-6 py-3 btn-outline font-semibold">Hoy y ahora ya que es tu cumple</button>
-              <button id="opt-domingo" class="rounded-2xl px-6 py-3 btn-outline font-semibold">El domingo a mi vuelta!</button>
-              <button id="opt-cenita" class="rounded-2xl px-6 py-3 btn-outline font-semibold">En la cenita de celebración de los dos</button>
+              <button id="opt-hoy" class="choice-btn rounded-2xl px-6 py-3 btn-outline font-semibold" data-key="hoy">Hoy y ahora ya que es tu cumple</button>
+              <button id="opt-domingo" class="choice-btn rounded-2xl px-6 py-3 btn-outline font-semibold" data-key="domingo">El domingo a mi vuelta!</button>
+              <button id="opt-cenita" class="choice-btn rounded-2xl px-6 py-3 btn-outline font-semibold" data-key="cenita">En la cenita de celebración de los dos</button>
             </div>
             <div id="giftConfirm" class="text-sm text-green-700 min-h-[1.25rem]" aria-live="polite"></div>
             <div id="chosenSummary" class="text-sm text-slate-600"></div>
             <div class="flex items-center justify-center gap-3 pt-2">
               <button id="restartBtn" class="rounded-2xl px-6 py-3 btn-outline font-semibold">Volver a empezar</button>
               <button id="backToOptionsBtn" class="rounded-2xl px-6 py-3 btn-primary font-semibold">Volver a opciones</button>
+            </div>
+            <div class="pt-3">
+              <button id="finalConfirm" class="rounded-2xl px-6 py-3 btn-primary font-semibold btn-disabled" disabled>Confirmar elección</button>
             </div>
           </div>
         </div>
@@ -197,15 +200,86 @@
       // Hobbies selection
       function selectedPicks(){const ids=['esgrima','caballo','pintura'];const labels={esgrima:'Bautizo de Esgrima',caballo:'10 sesiones clase de caballo',pintura:'Bono 10 sesiones clase de pintura'};return ids.filter(id=>{const el=document.querySelector('#opt-'+id+' input');return el&&el.checked;}).map(id=>labels[id]);}
       document.getElementById('confirmBtn').onclick=()=>{const picks=selectedPicks();const summary=document.getElementById('chosenSummary');if(summary){summary.textContent=picks.length?('Has elegido: '+picks.join(', ')):'No has marcado hobbies (podemos decidirlo más tarde).';}setStep(3);};
-      // Gift choice with visible green state + persisted
-      const hoy=document.getElementById('opt-hoy');const domingo=document.getElementById('opt-domingo');const cenita=document.getElementById('opt-cenita');
-      const giftConfirm=document.getElementById('giftConfirm');
+
+      // -------- Última pantalla: elección + botón Confirmar + confeti --------
       const CHOICES={hoy:'Hoy y ahora ya que es tu cumple',domingo:'El domingo a mi vuelta!',cenita:'En la cenita de celebración de los dos'};
-      function clearChoices(){[hoy,domingo,cenita].forEach(b=>{b.classList.remove('btn-selected','btn-success');b.classList.add('btn-outline');});}
-      function applyChoice(btn,key){clearChoices();btn.classList.remove('btn-outline');btn.classList.add('btn-selected');giftConfirm.textContent='✔️ ¡Hecho! Reservado: '+CHOICES[key];localStorage.setItem('giftChoice',key);}
-      hoy.onclick=()=>applyChoice(hoy,'hoy');domingo.onclick=()=>applyChoice(domingo,'domingo');cenita.onclick=()=>applyChoice(cenita,'cenita');
-      // Restore saved
-      const saved=localStorage.getItem('giftChoice');if(saved&&CHOICES[saved]){applyChoice(saved==='hoy'?hoy:saved==='domingo'?domingo:cenita,saved);}
+      const choiceButtons = document.querySelectorAll('.choice-btn');
+      const giftConfirm=document.getElementById('giftConfirm');
+      const finalConfirm=document.getElementById('finalConfirm');
+      let selectedKey = localStorage.getItem('giftChoice') || null;
+
+      function updateButtonsUI(){
+        choiceButtons.forEach(btn => {
+          btn.classList.remove('btn-selected','btn-success');
+          btn.classList.add('btn-outline');
+          if (btn.dataset.key === selectedKey) {
+            btn.classList.remove('btn-outline');
+            btn.classList.add('btn-selected');
+          }
+        });
+        finalConfirm.classList.toggle('btn-disabled', !selectedKey);
+        finalConfirm.disabled = !selectedKey;
+        giftConfirm.textContent = selectedKey ? ('✔️ ¡Hecho! Reservado: ' + CHOICES[selectedKey]) : '';
+      }
+
+      choiceButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedKey = btn.dataset.key;
+          localStorage.setItem('giftChoice', selectedKey);
+          updateButtonsUI();
+        });
+      });
+
+      function launchConfetti(durationMs=1500){
+        const colors = ['#2563eb','#16a34a','#f59e0b','#ef4444','#a78bfa','#10b981'];
+        const canvas = document.createElement('canvas');
+        canvas.style.position='fixed'; canvas.style.left='0'; canvas.style.top='0';
+        canvas.style.width='100%'; canvas.style.height='100%'; canvas.style.pointerEvents='none'; canvas.style.zIndex='9999';
+        document.body.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        const N = 180;
+        const parts = new Array(N).fill(0).map(()=> ({
+          x: Math.random()*canvas.width,
+          y: -Math.random()*canvas.height,
+          r: 4+Math.random()*6,
+          c: colors[Math.floor(Math.random()*colors.length)],
+          vx: -2+Math.random()*4,
+          vy: 2+Math.random()*3,
+          a: Math.random()*Math.PI*2,
+          va: -0.1 + Math.random()*0.2
+        }));
+        let start=null;
+        function tick(ts){
+          if(!start) start=ts;
+          const elapsed=ts-start;
+          ctx.clearRect(0,0,canvas.width,canvas.height);
+          parts.forEach(p=>{
+            p.x+=p.vx; p.y+=p.vy; p.a+=p.va;
+            if(p.y>canvas.height){ p.y=-10; p.x=Math.random()*canvas.width; }
+            ctx.save();
+            ctx.translate(p.x,p.y);
+            ctx.rotate(p.a);
+            ctx.fillStyle=p.c;
+            ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2);
+            ctx.restore();
+          });
+          if(elapsed<durationMs){ requestAnimationFrame(tick); }
+          else { document.body.removeChild(canvas); window.removeEventListener('resize', resize); }
+        }
+        requestAnimationFrame(tick);
+      }
+
+      finalConfirm.addEventListener('click', () => {
+        if (!selectedKey) return;
+        launchConfetti(1800);
+        giftConfirm.textContent = '🎉 ¡Perfecto! ¡Ahora a disfrutar!';
+      });
+
+      // Inicializar UI con estado guardado (si lo hay)
+      updateButtonsUI();
+
       setStep(0);
     })();
   </script>
